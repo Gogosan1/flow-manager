@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-flow_manager}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       DEBEZIUM_PASSWORD: ${DEBEZIUM_PASSWORD:?Set DEBEZIUM_PASSWORD in .env}
-    ports:
-      - "5433:5432"
     command:
       - postgres
       - -c
@@ -51,10 +49,6 @@ services:
     depends_on:
       postgres-flow-manager:
         condition: service_healthy
-#      kafka:
-#        condition: service_healthy
-#      minio:
-#        condition: service_healthy
     networks:
       - internal-bridge
 
@@ -66,8 +60,6 @@ services:
     container_name: second-service-debezium-init
     restart: "no"
     depends_on:
-#      debezium:
-#        condition: service_started
       flow-manager:
         condition: service_started
 
