@@ -13,7 +13,7 @@ public class FileConvertedKafkaConsumer {
     private final FlowManagerService flowManagerService;
 
     @KafkaListener(topics = "${spring.kafka.input-topic}")
-    public void listen(FileConvertedEvent event){
+    public void listen(FileConvertedEvent event) {
         flowManagerService.handle(event);
     }
 }

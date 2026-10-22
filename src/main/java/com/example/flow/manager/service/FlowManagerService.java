@@ -5,6 +5,8 @@ import com.example.flow.manager.event.FileUploadedEvent;
 import com.example.flow.manager.infra.storage.MinioStorage;
 import com.example.flow.manager.model.entity.FileMetadata;
 import com.example.flow.manager.model.enums.SagaStatus;
+import com.example.flow.manager.util.exceptions.SourceObjectNotFoundException;
+import com.example.flow.manager.util.exceptions.UploadToMinioException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class FlowManagerService {
         try {
             minioStorage.upload(file, file.getOriginalFilename());
         } catch (Exception e) {
-            throw new RuntimeException(e); //TODO: Create specific exception
+            throw new UploadToMinioException("Не удалось загрузить объект в minio");
         }
         log.info("Файл {} заргужен в минио", file.getOriginalFilename());
 
@@ -41,7 +43,7 @@ public class FlowManagerService {
         try {
             return minioStorage.download(key);
         } catch (Exception e) {
-            throw new RuntimeException(e); //TODO: create specific exception
+            throw new SourceObjectNotFoundException("Объекта по ключу:" + key + " не существует!");
         }
     }
 
@@ -52,7 +54,6 @@ public class FlowManagerService {
         }
         if (event.status().equals(SagaStatus.FAILURE.name())) {
             persistenceService.updateFileMetadata(event, SagaStatus.FAILURE);
-            //throw new RuntimeException(event.error());
         }
         log.info("Установлен новый статус для события {}", event.toString());
     }

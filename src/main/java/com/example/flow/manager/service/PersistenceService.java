@@ -48,9 +48,8 @@ public class PersistenceService {
 
     @Transactional
     public FileMetadata getFileConvertingMetadataById(UUID id) {
-        FileMetadata metadata = fileMetadataRepository.findById(id)
+        return fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Файла с таким id:" + id + " не существует!"));
-        return metadata;
     }
 
     @Transactional

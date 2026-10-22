@@ -34,8 +34,6 @@ public class FileController {
                 .body(resource);
     }
 
-    // TODO: у меня тут получается неявное поведение, ожидается статус, а получаем всю информацию о конвертации,
-    //  может стоить добавить еще один эндпоинт для получения всей информации, а не только статуса?
     @GetMapping("/{id}/status")
     public ResponseEntity<FileMetadata> getStatus(@RequestParam UUID id) {
         FileMetadata metadata = flowManagerService.getFileConvertingMetadata(id);
