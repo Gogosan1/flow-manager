@@ -2,6 +2,7 @@ package com.example.flow.manager.controller;
 
 import com.example.flow.manager.event.FileUploadedEvent;
 import com.example.flow.manager.model.entity.FileMetadata;
+import com.example.flow.manager.proxy.CheckSubscription;
 import com.example.flow.manager.service.FlowManagerService;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.RequiredArgsConstructor;
@@ -35,14 +36,18 @@ public class FileController {
     }
 
     @GetMapping("/{id}/status")
-    public ResponseEntity<FileMetadata> getStatus(@RequestParam UUID id) {
+    public ResponseEntity<FileMetadata> getStatus(@PathVariable UUID id) {
         FileMetadata metadata = flowManagerService.getFileConvertingMetadata(id);
         return ResponseEntity.ok(metadata);
     }
 
 
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileUploadedEvent> uploadFile(@RequestParam("file") MultipartFile file) {
+    @CheckSubscription(userLogin = "#userLogin", fileSize = "#file.size")
+    public ResponseEntity<FileUploadedEvent> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader("X-User-Login") String userLogin) {
+
         FileUploadedEvent event = flowManagerService.saveToS3(file);
         return ResponseEntity.ok(event);
     }

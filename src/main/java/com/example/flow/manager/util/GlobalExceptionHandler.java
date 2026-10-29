@@ -1,4 +1,4 @@
-package com.example.flow.manager.controller;
+package com.example.flow.manager.util;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
