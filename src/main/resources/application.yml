@@ -2,6 +2,13 @@ spring:
   application:
     name: "flow-manager"
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: 2s
+      timeout: 2s
+
   servlet:
     multipart:
       max-file-size: -1
@@ -35,6 +42,7 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     input-topic: ${KAFKA_INPUT_TOPIC:converted}
     output-topic: ${KAFKA_OUTPUT_TOPIC:to-convert}
+    subscription-invalidation-topic: ${KAFKA_SUBSCRIPTION_INVALIDATION_TOPIC:subscription-invalidation}
 
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -46,9 +54,36 @@ spring:
 
       properties:
         "[spring.json.value.default.type]": "com.example.flow.manager.event.FileConvertedEvent"
-        "[spring.json.trusted.packages]": "com.example.flow.managerevent.event"
+        "[spring.json.trusted.packages]": "com.example.flow.manager.event"
         "[spring.json.use.type.headers]": false
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5m
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "${spring.application.name}:"
+
+
+resilience4j:
+  circuitbreaker:
+    circuit-breaker-aspect-order: 100
+    instances:
+      subscriptionService:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+
+  retry:
+    retry-aspect-order: 200
+    instances:
+      subscriptionService:
+        max-attempts: 3
+        wait-duration: 1000ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
 
 
 eureka:

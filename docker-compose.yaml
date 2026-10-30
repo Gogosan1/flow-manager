@@ -30,8 +30,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8090:8080"
     environment:
       DB_HOST: ${DB_HOST:-postgres-flow-manager}
       DB_PORT: 5432
@@ -46,9 +44,13 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_INTERNAL_BOOTSTRAP_SERVERS:-kafka-0:9091}
       KAFKA_OUTPUT_TOPIC: ${KAFKA_OUTPUT_TOPIC:-to-convert}
       KAFKA_INPUT_TOPIC: ${KAFKA_INPUT_TOPIC:-converted}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       postgres-flow-manager:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - internal-bridge
 
@@ -77,8 +79,24 @@ services:
     networks:
       - internal-bridge
 
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_cache
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal-bridge
+
+
 volumes:
   postgres-data-flow-manager:
+  redis_data:
 
 networks:
   internal-bridge:
