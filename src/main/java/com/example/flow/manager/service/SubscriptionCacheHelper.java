@@ -18,19 +18,19 @@ public class SubscriptionCacheHelper {
 
     @Cacheable(value = "subscriptionTypes", key = "#userLogin")
     @CircuitBreaker(name = "subscriptionService", fallbackMethod = "subscriptionServiceFallback")
-    @Retry(name ="subscriptionService")
-    public SubscriptionType getSubscriptionType(String userLogin){
+    @Retry(name = "subscriptionService")
+    public SubscriptionType getSubscriptionType(String userLogin) {
         return subscriptionClient.getSubscriptionTypeInfo(userLogin);
     }
 
-    private SubscriptionType subscriptionServiceFallback(String userLogin, Throwable throwable){
+    private SubscriptionType subscriptionServiceFallback(String userLogin, Throwable throwable) {
         throw new SubscriptionServiceUnavailableException(
                 "Сервис подписок временно недоступен"
         );
     }
 
     @CacheEvict(value = "subscriptionTypes", key = "#userLogin")
-    public void invalidateCache(String userLogin){
+    public void invalidateCache(String userLogin) {
 
     }
 }

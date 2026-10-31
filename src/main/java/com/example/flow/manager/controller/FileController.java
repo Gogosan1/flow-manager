@@ -4,6 +4,7 @@ import com.example.flow.manager.event.FileUploadedEvent;
 import com.example.flow.manager.model.entity.FileMetadata;
 import com.example.flow.manager.proxy.CheckSubscription;
 import com.example.flow.manager.service.FlowManagerService;
+import io.micrometer.core.annotation.Timed;
 import jakarta.ws.rs.core.HttpHeaders;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -44,6 +45,7 @@ public class FileController {
 
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @CheckSubscription(userLogin = "#userLogin", fileSize = "#file.size")
+    @Timed(value = "custom.files.uploaded", description = "Счетчик загруженных файлов")
     public ResponseEntity<FileUploadedEvent> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("X-User-Login") String userLogin) {
